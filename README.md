@@ -1,12 +1,11 @@
 # git-remote-switch
 
-Switch git remote URLs between HTTPS and SSH with ease.
+一键切换 Git Remote URL：HTTPS ↔ SSH
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-0.0.1-blue.svg" alt="Version">
-  <img src="https://img.shields.io/badge/Status-Recovered-green.svg" alt="Status">
-  <img src="https://img.shields.io/badge/Language-TypeScript-blue.svg" alt="Language">
-  <img src="https://img.shields.io/badge/UI-Ink%20%2F%20React-orange.svg" alt="UI">
+  <img src="https://img.shields.io/badge/Version-0.1.0-blue.svg" alt="Version">
+  <img src="https://img.shields.io/badge/Python-3.10+-green.svg" alt="Python">
+  <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License">
 </p>
 
 ---
@@ -26,42 +25,46 @@ Switch git remote URLs between HTTPS and SSH with ease.
 
 👉 请点击：[https://dataeyes.ai/?promoter_code=4qx9suz3](https://dataeyes.ai/?promoter_code=4qx9suz3)
 
-## Installation
+## 背景
+
+在国内网络环境下，访问 GitHub 等平台时 HTTPS 方式经常超时或失败，切换到 SSH 可以解决问题；而在公司内网或需要代理时，又可能需要切回 HTTPS。手动改 URL 很麻烦，于是有了这个工具。
+
+## 安装
 
 ```bash
 pip install git-remote-switch
-# or
+# 或者
 pipx install git-remote-switch
 ```
 
-## Usage
+## 使用
 
 ```bash
-# Switch remotes in current directory
+# 切换当前目录的 remote
 git-remote-switch
-# or use the short alias
+# 或者用简写
 grs
 
-# Switch remotes in a specific directory
+# 指定目录
 git-remote-switch /path/to/repo
 
-# Dry run (preview without making changes)
+# 预览模式（只看不改）
 git-remote-switch --dry-run
 ```
 
-## How it works
+## 工作原理
 
-- If a remote URL uses **HTTPS/HTTP**, it will be converted to **SSH** format
-- If a remote URL uses **SSH**, you'll be prompted to choose between **HTTPS** or **HTTP**
+- 如果 remote URL 是 **HTTPS/HTTP**，自动转换为 **SSH** 格式
+- 如果 remote URL 是 **SSH**，会让你选择转换为 **HTTPS** 还是 **HTTP**
 
-### URL Conversion Examples
+### URL 转换示例
 
-| From | To |
-|------|----|
+| 原始 URL | 转换后 |
+|----------|--------|
 | `https://github.com/user/repo.git` | `git@github.com:user/repo.git` |
 | `http://github.com/user/repo.git` | `git@github.com:user/repo.git` |
-| `git@github.com:user/repo.git` | `https://github.com/user/repo.git` (your choice) |
+| `git@github.com:user/repo.git` | `https://github.com/user/repo.git`（可选择） |
 
-## License
+## 许可证
 
 MIT
