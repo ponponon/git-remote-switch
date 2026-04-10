@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-
 import questionary
 import typer
 from rich.console import Console
@@ -12,17 +11,17 @@ from rich.panel import Panel
 from rich.table import Table
 
 from git_remote_switch.core import (
-    RemoteProtocol,
     get_remotes,
     https_to_ssh,
     is_git_repo,
     set_remote_url,
     ssh_to_https,
 )
+from git_remote_switch.i18n import T
 
 app = typer.Typer(
     name="git-remote-switch",
-    help="Switch git remote URLs between HTTPS and SSH with ease.",
+    help=T.app_help,
     no_args_is_help=False,
     add_completion=False,
 )
@@ -40,40 +39,39 @@ def version_callback(value: bool) -> None:
 def main(
     path: Path | None = typer.Argument(
         None,
-        help="Path to the git repository. Defaults to current directory.",
+        help=T.path_help,
     ),
     dry_run: bool = typer.Option(
         False,
         "--dry-run",
         "-n",
-        help="Preview changes without modifying remotes.",
+        help=T.dry_run_help,
     ),
     version: bool = typer.Option(
         False,
         "--version",
         "-v",
-        help="Show version and exit.",
+        help=T.version_help,
         callback=version_callback,
         is_eager=True,
     ),
 ) -> None:
-    """Switch git remote URLs between HTTPS and SSH."""
     repo_path = path or Path.cwd()
 
     if not is_git_repo(repo_path):
-        console.print(f"[red]Error:[/red] {repo_path} is not a git repository")
+        console.print(f"[red]{T.error_prefix}:[/red] {repo_path} {T.not_git_repo}")
         raise typer.Exit(1)
 
     remotes = get_remotes(repo_path)
     if not remotes:
-        console.print("[yellow]No remotes found.[/yellow]")
+        console.print(f"[yellow]{T.no_remotes}[/yellow]")
         raise typer.Exit(0)
 
     # Display current remotes
-    table = Table(title="Current Remotes", show_header=True, header_style="bold cyan")
-    table.add_column("Remote", style="bold")
-    table.add_column("Protocol", style="bold")
-    table.add_column("URL")
+    table = Table(title=T.current_remotes, show_header=True, header_style="bold cyan")
+    table.add_column(T.col_remote, style="bold")
+    table.add_column(T.col_protocol, style="bold")
+    table.add_column(T.col_url)
 
     for r in remotes:
         proto_style = "green" if r.is_https else "magenta"
@@ -88,56 +86,51 @@ def main(
         new_url: str | None = None
 
         if remote.is_https:
-            # HTTPS/HTTP -> SSH
             new_url = https_to_ssh(remote.url)
             console.print(
-                f"  [{remote.name}] [green]HTTPS → SSH[/green]\n"
+                f"  [{remote.name}] [green]{T.https_to_ssh}[/green]\n"
                 f"    [dim]{remote.url}[/dim]\n"
                 f"    → [bold]{new_url}[/bold]"
             )
         elif remote.is_ssh:
-            # SSH -> HTTPS or HTTP (user choice)
-            choices = [
-                f"HTTPS (https://...)",
-                f"HTTP  (http://...)",
-            ]
+            choices = [T.choice_https, T.choice_http]
             answer = questionary.select(
-                f"  [{remote.name}] Convert SSH to which protocol?",
+                f"  [{remote.name}] {T.ssh_prompt}",
                 choices=choices,
                 default=choices[0],
             ).ask()
 
             if answer is None:
-                console.print(f"  [yellow]Skipped {remote.name}[/yellow]")
+                console.print(f"  [yellow]{T.skipped} {remote.name}[/yellow]")
                 continue
 
-            use_http = "HTTP" in answer
+            use_http = "HTTP" in answer and "HTTPS" not in answer
             new_url = ssh_to_https(remote.url, use_http=use_http)
-            proto_label = "HTTP" if use_http else "HTTPS"
+            proto_label = T.ssh_to_http if use_http else T.ssh_to_https
             console.print(
-                f"  [{remote.name}] [magenta]SSH → {proto_label}[/magenta]\n"
+                f"  [{remote.name}] [magenta]{proto_label}[/magenta]\n"
                 f"    [dim]{remote.url}[/dim]\n"
                 f"    → [bold]{new_url}[/bold]"
             )
         else:
-            console.print(f"  [yellow]Skipped {remote.name} (unsupported URL format)[/yellow]")
+            console.print(f"  [yellow]{T.skipped} {remote.name} ({T.unsupported_format})[/yellow]")
             continue
 
         if new_url and new_url != remote.url:
             if dry_run:
-                console.print(f"    [dim](dry run, not applied)[/dim]")
+                console.print(f"    [dim]{T.dry_run_note}[/dim]")
             else:
                 if set_remote_url(repo_path, remote.name, new_url):
-                    console.print(f"    [green]✓ Updated[/green]")
+                    console.print(f"    [green]{T.updated}[/green]")
                     changed += 1
                 else:
-                    console.print(f"    [red]✗ Failed to update[/red]")
+                    console.print(f"    [red]{T.failed_to_update}[/red]")
         console.print()
 
     # Summary
     if changed > 0:
-        console.print(Panel(f"[bold green]{changed} remote(s) updated![/bold green]", expand=False))
+        console.print(Panel(f"[bold green]{changed} {T.remotes_updated}[/bold green]", expand=False))
     elif dry_run:
-        console.print(Panel("[bold yellow]Dry run — no changes made.[/bold yellow]", expand=False))
+        console.print(Panel(f"[bold yellow]{T.dry_run_summary}[/bold yellow]", expand=False))
     else:
-        console.print(Panel("[bold]No changes needed.[/bold]", expand=False))
+        console.print(Panel(f"[bold]{T.no_changes}[/bold]", expand=False))

@@ -3,7 +3,7 @@
 一键切换 Git Remote URL：HTTPS ↔ SSH
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-0.1.0-blue.svg" alt="Version">
+  <img src="https://img.shields.io/badge/Version-0.0.2-blue.svg" alt="Version">
   <img src="https://img.shields.io/badge/Python-3.10+-green.svg" alt="Python">
   <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License">
 </p>
