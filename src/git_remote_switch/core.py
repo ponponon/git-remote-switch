@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Core logic for git remote URL switching."""
+
+from __future__ import annotations
 
 import re
 import subprocess
