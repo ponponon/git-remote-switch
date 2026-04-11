@@ -31,6 +31,12 @@ dependencies = [
     "questionary>=2.0.0",
 ]
 
+[project.urls]
+Homepage = "https://github.com/ponponon/git-remote-switch"
+Repository = "https://github.com/ponponon/git-remote-switch.git"
+Issues = "https://github.com/ponponon/git-remote-switch/issues"
+Changelog = "https://github.com/ponponon/git-remote-switch/blob/main/CHANGELOG.md"
+
 [project.scripts]
 git-remote-switch = "git_remote_switch.cli:app"
 grs = "git_remote_switch.cli:app"
@@ -50,3 +56,4 @@ line-length = 100
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = ["E501", "B008"]  # Line length and function call in defaults (Typer pattern)
